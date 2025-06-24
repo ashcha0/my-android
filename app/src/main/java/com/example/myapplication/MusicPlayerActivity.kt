@@ -28,6 +28,7 @@ import com.example.myapplication.adapter.MusicAdapter
 import com.example.myapplication.model.Music
 import com.example.myapplication.service.MusicService
 import com.example.myapplication.utils.MusicScanner
+import com.example.myapplication.utils.MusicStorage
 
 class MusicPlayerActivity : AppCompatActivity() {
     
@@ -56,6 +57,9 @@ class MusicPlayerActivity : AppCompatActivity() {
     private var musicList: List<Music> = emptyList()
     private val handler = Handler(Looper.getMainLooper())
     private var updateRunnable: Runnable? = null
+    
+    // 音乐存储管理
+    private lateinit var musicStorage: MusicStorage
     
     // 权限请求
     private val permissionLauncher = registerForActivityResult(
@@ -106,9 +110,16 @@ class MusicPlayerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_music_player)
         
+        // 初始化音乐存储管理
+        musicStorage = MusicStorage(this)
+        Log.d(TAG, "初始化音乐存储管理")
+        
         initViews()
         setupClickListeners()
         setupRecyclerView()
+        
+        // 加载已保存的音乐列表
+        loadSavedMusicList()
         
         // 启动音乐服务
         val serviceIntent = Intent(this, MusicService::class.java)
@@ -122,6 +133,13 @@ class MusicPlayerActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         stopUpdatingUI()
+        
+        // 保存音乐列表
+        if (::musicStorage.isInitialized && musicList.isNotEmpty()) {
+            saveMusicList()
+            Log.d(TAG, "应用退出时保存音乐列表")
+        }
+        
         if (isBound) {
             unbindService(serviceConnection)
             isBound = false
@@ -204,18 +222,59 @@ class MusicPlayerActivity : AppCompatActivity() {
         }
     }
     
+    /**
+     * 加载已保存的音乐列表
+     */
+    private fun loadSavedMusicList() {
+        Log.d(TAG, "开始加载已保存的音乐列表")
+        val savedMusicList = musicStorage.loadMusicList()
+        
+        if (savedMusicList.isNotEmpty()) {
+            musicList = savedMusicList
+            musicAdapter.updateMusicList(musicList)
+            musicService?.setMusicList(musicList)
+            Log.d(TAG, "加载已保存的音乐列表成功，共 ${musicList.size} 首音乐")
+            Toast.makeText(this, "加载了 ${musicList.size} 首已保存的音乐", Toast.LENGTH_SHORT).show()
+        } else {
+            Log.d(TAG, "没有已保存的音乐列表")
+        }
+    }
+    
     private fun scanMusicFiles() {
         val scanner = MusicScanner(this)
-        musicList = scanner.scanMusicFiles()
+        val scannedMusicList = scanner.scanMusicFiles()
         
-        musicAdapter.updateMusicList(musicList)
-        musicService?.setMusicList(musicList)
+        // 合并扫描到的音乐和已保存的音乐列表，避免重复
+        val existingPaths = musicList.map { it.path }.toSet()
+        val newMusicList = scannedMusicList.filter { it.path !in existingPaths }
         
-        if (musicList.isEmpty()) {
-            Toast.makeText(this, "未找到音乐文件", Toast.LENGTH_SHORT).show()
+        if (newMusicList.isNotEmpty()) {
+            val updatedMusicList = musicList.toMutableList()
+            updatedMusicList.addAll(newMusicList)
+            musicList = updatedMusicList
+            
+            // 保存更新后的音乐列表
+            saveMusicList()
+            
+            musicAdapter.updateMusicList(musicList)
+            musicService?.setMusicList(musicList)
+            
+            Log.d(TAG, "扫描到 ${newMusicList.size} 首新音乐，总共 ${musicList.size} 首音乐")
+            Toast.makeText(this, "扫描到 ${newMusicList.size} 首新音乐", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this, "找到 ${musicList.size} 首音乐", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "未扫描到新的音乐文件")
+            if (musicList.isEmpty()) {
+                Toast.makeText(this, "未找到音乐文件", Toast.LENGTH_SHORT).show()
+            }
         }
+    }
+    
+    /**
+     * 保存音乐列表
+     */
+    private fun saveMusicList() {
+        Log.d(TAG, "保存音乐列表")
+        musicStorage.saveMusicList(musicList)
     }
     
     private fun togglePlayPause() {
@@ -329,6 +388,18 @@ class MusicPlayerActivity : AppCompatActivity() {
                 }
             }
             
+            // 复制文件到私有目录
+            Log.d("MusicPlayer", "开始复制文件到私有目录")
+            val privateFilePath = musicStorage.copyMusicToPrivateDirectory(uri, fileName)
+            
+            if (privateFilePath == null) {
+                Log.e("MusicPlayer", "复制文件到私有目录失败")
+                Toast.makeText(this, "复制文件失败", Toast.LENGTH_SHORT).show()
+                return
+            }
+            
+            Log.d("MusicPlayer", "文件复制成功，私有路径: $privateFilePath")
+            
             // 使用特定的音频媒体查询
             val projection = arrayOf(
                 MediaStore.Audio.Media.DISPLAY_NAME,
@@ -353,7 +424,7 @@ class MusicPlayerActivity : AppCompatActivity() {
                 
                 if (fileName.isNotEmpty()) {
                     // 使用文件名创建基本的Music对象
-                    createMusicFromFileName(uri, fileName)
+                    createMusicFromFileName(privateFilePath, fileName)
                 } else {
                     Toast.makeText(this, "无法访问音乐文件", Toast.LENGTH_SHORT).show()
                 }
@@ -418,7 +489,7 @@ class MusicPlayerActivity : AppCompatActivity() {
                              title = bestTitle.removeSuffix(".mp3").removeSuffix(".m4a").removeSuffix(".wav"),
                              artist = artist ?: "未知艺术家",
                              album = "未知专辑",
-                             path = uri.toString(),
+                             path = privateFilePath, // 使用私有目录路径
                              duration = duration,
                              albumId = 0L
                          )
@@ -429,6 +500,9 @@ class MusicPlayerActivity : AppCompatActivity() {
                         val newMusicList = musicList.toMutableList()
                         newMusicList.add(music)
                         musicList = newMusicList
+                        
+                        // 保存更新后的音乐列表
+                        saveMusicList()
                         
                         Log.d("MusicPlayer", "更新音乐列表，新列表大小: ${musicList.size}")
                         
@@ -441,13 +515,13 @@ class MusicPlayerActivity : AppCompatActivity() {
                         Log.d("MusicPlayer", "更新适配器")
                         
                         Toast.makeText(this, "已添加: ${music.title}", Toast.LENGTH_SHORT).show()
-                        Log.d("MusicPlayer", "音乐添加成功: ${music.title}")
+                        Log.d("MusicPlayer", "音乐添加成功: ${music.title}，使用私有路径: $privateFilePath")
                     } catch (e: Exception) {
                         Log.e("MusicPlayer", "处理cursor数据时出错", e)
                         
                         // 尝试使用文件名作为备选方案
                         if (fileName.isNotEmpty()) {
-                            createMusicFromFileName(uri, fileName)
+                            createMusicFromFileName(privateFilePath, fileName)
                         } else {
                             Toast.makeText(this, "处理音乐文件信息失败: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
@@ -457,7 +531,7 @@ class MusicPlayerActivity : AppCompatActivity() {
                     
                     // 尝试使用文件名作为备选方案
                     if (fileName.isNotEmpty()) {
-                        createMusicFromFileName(uri, fileName)
+                        createMusicFromFileName(privateFilePath, fileName)
                     } else {
                         Toast.makeText(this, "无法读取音乐文件信息", Toast.LENGTH_SHORT).show()
                     }
@@ -469,7 +543,7 @@ class MusicPlayerActivity : AppCompatActivity() {
         }
     }
     
-    private fun createMusicFromFileName(uri: Uri, fileName: String) {
+    private fun createMusicFromFileName(filePath: String, fileName: String) {
         Log.d("MusicPlayer", "使用文件名创建音乐对象: $fileName")
         
         val title = fileName.removeSuffix(".mp3").removeSuffix(".m4a").removeSuffix(".wav")
@@ -479,7 +553,7 @@ class MusicPlayerActivity : AppCompatActivity() {
              title = title,
              artist = "未知艺术家",
              album = "未知专辑",
-             path = uri.toString(),
+             path = filePath, // 使用私有目录路径
              duration = 0L,
              albumId = 0L
          )
@@ -491,6 +565,9 @@ class MusicPlayerActivity : AppCompatActivity() {
         newMusicList.add(music)
         musicList = newMusicList
         
+        // 保存更新后的音乐列表
+        saveMusicList()
+        
         // 更新服务中的音乐列表
         musicService?.setMusicList(musicList)
         
@@ -498,7 +575,7 @@ class MusicPlayerActivity : AppCompatActivity() {
         musicAdapter.updateMusicList(musicList)
         
         Toast.makeText(this, "已添加: ${music.title}", Toast.LENGTH_SHORT).show()
-        Log.d("MusicPlayer", "从文件名添加音乐成功: ${music.title}")
+        Log.d("MusicPlayer", "从文件名添加音乐成功: ${music.title}，使用私有路径: $filePath")
     }
     
     private fun formatTime(milliseconds: Int): String {

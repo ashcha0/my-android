@@ -47,29 +47,54 @@ class MusicService : Service() {
     
     fun playMusic(music: Music, position: Int) {
         try {
+            Log.d(TAG, "开始播放音乐: ${music.title}, 路径: ${music.path}")
             releaseMediaPlayer()
             
             currentMusic = music
             currentPosition = position
             
             mediaPlayer = MediaPlayer().apply {
-                setDataSource(music.path)
-                prepareAsync()
+                Log.d(TAG, "创建MediaPlayer实例")
+                
+                try {
+                    // 检查路径类型并设置数据源
+                    if (music.path.startsWith("content://")) {
+                        Log.d(TAG, "使用URI设置数据源: ${music.path}")
+                        setDataSource(this@MusicService, android.net.Uri.parse(music.path))
+                    } else {
+                        Log.d(TAG, "使用文件路径设置数据源: ${music.path}")
+                        setDataSource(music.path)
+                    }
+                    
+                    Log.d(TAG, "开始异步准备MediaPlayer")
+                    prepareAsync()
+                } catch (e: Exception) {
+                    Log.e(TAG, "设置数据源失败", e)
+                    throw e
+                }
+                
                 setOnPreparedListener {
+                    Log.d(TAG, "MediaPlayer准备完成，开始播放")
                     start()
                     this@MusicService.isPlaying = true
-                    Log.d(TAG, "Playing: ${music.title}")
+                    Log.d(TAG, "播放开始: ${music.title}")
                 }
+                
                 setOnCompletionListener {
+                    Log.d(TAG, "播放完成: ${music.title}")
                     playNext()
                 }
+                
                 setOnErrorListener { _, what, extra ->
-                    Log.e(TAG, "MediaPlayer error: what=$what, extra=$extra")
+                    Log.e(TAG, "MediaPlayer播放错误: what=$what, extra=$extra, 音乐: ${music.title}")
+                    Log.e(TAG, "错误详情 - what含义: ${getErrorMessage(what)}, extra: $extra")
+                    this@MusicService.isPlaying = false
                     false
                 }
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error playing music: ${e.message}")
+            Log.e(TAG, "播放音乐失败: ${music.title}", e)
+            this.isPlaying = false
         }
     }
     
@@ -140,12 +165,26 @@ class MusicService : Service() {
     
     private fun releaseMediaPlayer() {
         mediaPlayer?.let {
-            if (it.isPlaying) {
-                it.stop()
+            try {
+                if (it.isPlaying) {
+                    Log.d(TAG, "停止当前播放")
+                    it.stop()
+                }
+                Log.d(TAG, "释放MediaPlayer资源")
+                it.release()
+            } catch (e: Exception) {
+                Log.e(TAG, "释放MediaPlayer时出错", e)
             }
-            it.release()
         }
         mediaPlayer = null
         isPlaying = false
+    }
+    
+    private fun getErrorMessage(what: Int): String {
+        return when (what) {
+            MediaPlayer.MEDIA_ERROR_UNKNOWN -> "MEDIA_ERROR_UNKNOWN"
+            MediaPlayer.MEDIA_ERROR_SERVER_DIED -> "MEDIA_ERROR_SERVER_DIED"
+            else -> "未知错误码: $what"
+        }
     }
 }

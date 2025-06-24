@@ -21,14 +21,18 @@
 
     <TextView
         android:id="@+id/tvData"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="当前数据: 初始值"
-        android:textSize="18sp"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:padding="16dp"
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="30dp" />
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp" />
 
     <Button
         android:id="@+id/btnOpenEdit"
@@ -49,5 +53,54 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="20dp" />
+
+    <TextView
+        android:id="@+id/tvSharedPrefsTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SharedPreferences操作"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/holo_blue_dark"
+        app:layout_constraintTop_toBottomOf="@id/btnOpenList"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="40dp" />
+
+    <LinearLayout
+        android:id="@+id/layoutSharedPrefsButtons"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@id/tvSharedPrefsTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp">
+
+        <Button
+            android:id="@+id/btnSaveData"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="保存数据到SP"
+            android:backgroundTint="@android:color/holo_green_dark"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/btnLoadData"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="从SP加载数据"
+            android:backgroundTint="@android:color/holo_blue_dark"
+            android:layout_marginBottom="10dp" />
+
+        <Button
+            android:id="@+id/btnClearData"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="清除SP数据"
+            android:backgroundTint="@android:color/holo_red_dark" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

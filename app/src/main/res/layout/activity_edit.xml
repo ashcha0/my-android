@@ -46,13 +46,14 @@
         android:layout_marginEnd="32dp" />
 
     <LinearLayout
+        android:id="@+id/layoutMainButtons"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/etData"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="40dp">
+        android:layout_marginTop="30dp">
 
         <Button
             android:id="@+id/btnSave"
@@ -66,6 +67,45 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="取消" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvSPTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SharedPreferences操作"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/holo_blue_dark"
+        app:layout_constraintTop_toBottomOf="@id/layoutMainButtons"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="30dp" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/tvSPTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp">
+
+        <Button
+            android:id="@+id/btnSaveToSP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="保存到SP"
+            android:backgroundTint="@android:color/holo_green_dark"
+            android:layout_marginEnd="20dp" />
+
+        <Button
+            android:id="@+id/btnLoadFromSP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="从SP加载"
+            android:backgroundTint="@android:color/holo_blue_dark" />
 
     </LinearLayout>
 

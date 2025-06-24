@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    
+    <!-- 阴天云朵 -->
+    <path
+        android:fillColor="#9E9E9E"
+        android:pathData="M38,18c0,-7.7 -6.3,-14 -14,-14c-5.1,0 -9.6,2.7 -12.1,6.8c-1.5,-0.7 -3.2,-1.1 -5,-1.1c-6.1,0 -11,4.9 -11,11c0,1.2 0.2,2.4 0.6,3.5C-5.2,26.4 -6,28.6 -6,31c0,6.1 4.9,11 11,11h28c7.7,0 14,-6.3 14,-14C47,22.9 43.1,18.9 38,18z" />
+    
+    <!-- 更深色的云层 -->
+    <path
+        android:fillColor="#757575"
+        android:pathData="M34,24c0,-4.4 -3.6,-8 -8,-8c-2.9,0 -5.4,1.5 -6.9,3.8c-0.9,-0.4 -1.8,-0.6 -2.8,-0.6c-3.5,0 -6.3,2.8 -6.3,6.3c0,0.7 0.1,1.4 0.3,2C8.7,28.2 8,29.5 8,31c0,3.5 2.8,6.3 6.3,6.3h16c4.4,0 8,-3.6 8,-8C38.3,26.6 36.4,24.7 34,24z" />
+</vector>

@@ -1,0 +1,19 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    
+    <!-- 太阳主体 -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M24,12c6.6,0 12,5.4 12,12s-5.4,12 -12,12s-12,-5.4 -12,-12S17.4,12 24,12z" />
+    
+    <!-- 太阳光线 -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M24,4v4M24,40v4M40,24h4M4,24h4M35.3,12.7l2.8,-2.8M9.9,35.1l2.8,-2.8M35.3,35.3l2.8,2.8M9.9,12.9l2.8,2.8"
+        android:strokeWidth="2"
+        android:strokeColor="#FFD700"
+        android:strokeLineCap="round" />
+</vector>

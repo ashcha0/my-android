@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    
+    <!-- 云朵 -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M36,20c0,-6.6 -5.4,-12 -12,-12c-4.4,0 -8.2,2.4 -10.3,6c-1.3,-0.6 -2.8,-1 -4.4,-1c-5.5,0 -10,4.5 -10,10c0,1.1 0.2,2.1 0.5,3.1C-1.8,27.2 -2,29.1 -2,31c0,5.5 4.5,10 10,10h24c6.6,0 12,-5.4 12,-12C44,23.8 40.6,20.4 36,20z" />
+    
+    <!-- 太阳（部分被云遮挡） -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M32,16c3.3,0 6,2.7 6,6s-2.7,6 -6,6s-6,-2.7 -6,-6S28.7,16 32,16z" />
+    
+    <!-- 太阳光线 -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M32,8v2M32,30v2M42,22h2M22,22h2M39.4,12.6l1.4,-1.4M25.2,25.8l1.4,-1.4M39.4,31.4l1.4,1.4M25.2,18.2l1.4,1.4"
+        android:strokeWidth="1.5"
+        android:strokeColor="#FFD700"
+        android:strokeLineCap="round" />
+</vector>

@@ -2,4 +2,27 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- 天气应用主题色 -->
+    <color name="primary_blue">#2196F3</color>
+    <color name="primary_blue_dark">#1976D2</color>
+    <color name="accent_orange">#FF9800</color>
+    
+    <!-- 温度颜色 -->
+    <color name="temp_high">#FF5722</color>
+    <color name="temp_low">#2196F3</color>
+    
+    <!-- 背景色 -->
+    <color name="weather_background">#87CEEB</color>
+    <color name="card_background">#FFFFFF</color>
+    
+    <!-- 文字颜色 -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+    
+    <!-- 空气质量颜色 -->
+    <color name="aqi_good">#4CAF50</color>
+    <color name="aqi_moderate">#FF9800</color>
+    <color name="aqi_unhealthy">#F44336</color>
 </resources>

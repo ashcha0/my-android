@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    
+    <!-- 雪云 -->
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M36,16c0,-6.6 -5.4,-12 -12,-12c-4.4,0 -8.2,2.4 -10.3,6c-1.3,-0.6 -2.8,-1 -4.4,-1c-5.5,0 -10,4.5 -10,10c0,1.1 0.2,2.1 0.5,3.1C-1.8,23.2 -2,25.1 -2,27c0,5.5 4.5,10 10,10h24c6.6,0 12,-5.4 12,-12C44,19.8 40.6,16.4 36,16z" />
+    
+    <!-- 雪花（更多） -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M10,32m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0M18,32m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0M26,32m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0M34,32m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0M14,36m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0M22,36m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0M30,36m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0" />
+    
+    <!-- 雪花形状 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M10,30v4M8,32h4M9,31l2,2M11,31l-2,2M18,30v4M16,32h4M17,31l2,2M19,31l-2,2M26,30v4M24,32h4M25,31l2,2M27,31l-2,2M34,30v4M32,32h4M33,31l2,2M35,31l-2,2M14,34v4M12,36h4M13,35l2,2M15,35l-2,2M22,34v4M20,36h4M21,35l2,2M23,35l-2,2M30,34v4M28,36h4M29,35l2,2M31,35l-2,2"
+        android:strokeWidth="1"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round" />
+</vector>

@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    
+    <!-- 雾气层 -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M4,20h40M4,24h36M8,28h32M4,32h40M6,36h36"
+        android:strokeWidth="3"
+        android:strokeColor="#E0E0E0"
+        android:strokeLineCap="round" />
+    
+    <!-- 更浓的雾气 -->
+    <path
+        android:fillColor="#BDBDBD"
+        android:pathData="M6,22h36M8,26h32M4,30h40M6,34h36"
+        android:strokeWidth="2"
+        android:strokeColor="#BDBDBD"
+        android:strokeLineCap="round" />
+</vector>

@@ -1,0 +1,24 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    
+    <!-- 雪云 -->
+    <path
+        android:fillColor="#E0E0E0"
+        android:pathData="M36,16c0,-6.6 -5.4,-12 -12,-12c-4.4,0 -8.2,2.4 -10.3,6c-1.3,-0.6 -2.8,-1 -4.4,-1c-5.5,0 -10,4.5 -10,10c0,1.1 0.2,2.1 0.5,3.1C-1.8,23.2 -2,25.1 -2,27c0,5.5 4.5,10 10,10h24c6.6,0 12,-5.4 12,-12C44,19.8 40.6,16.4 36,16z" />
+    
+    <!-- 雪花 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M14,32m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0M22,34m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0M30,32m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0M18,38m-1.5,0a1.5,1.5 0,1 1,3 0a1.5,1.5 0,1 1,-3 0M26,38m-1.5,0a1.5,1.5 0,1 1,3 0a1.5,1.5 0,1 1,-3 0" />
+    
+    <!-- 雪花形状 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M14,30v4M12,32h4M13,31l2,2M15,31l-2,2M22,32v4M20,34h4M21,33l2,2M23,33l-2,2M30,30v4M28,32h4M29,31l2,2M31,31l-2,2"
+        android:strokeWidth="1"
+        android:strokeColor="#FFFFFF"
+        android:strokeLineCap="round" />
+</vector>

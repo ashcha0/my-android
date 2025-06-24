@@ -1,0 +1,19 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    
+    <!-- 暴雨云朵 -->
+    <path
+        android:fillColor="#212121"
+        android:pathData="M36,16c0,-6.6 -5.4,-12 -12,-12c-4.4,0 -8.2,2.4 -10.3,6c-1.3,-0.6 -2.8,-1 -4.4,-1c-5.5,0 -10,4.5 -10,10c0,1.1 0.2,2.1 0.5,3.1C-1.8,23.2 -2,25.1 -2,27c0,5.5 4.5,10 10,10h24c6.6,0 12,-5.4 12,-12C44,19.8 40.6,16.4 36,16z" />
+    
+    <!-- 暴雨 -->
+    <path
+        android:fillColor="#01579B"
+        android:pathData="M6,32l-4,12M14,32l-4,12M22,32l-4,12M30,32l-4,12M38,32l-4,12M10,30l-4,12M18,30l-4,12M26,30l-4,12M34,30l-4,12M8,28l-4,12M16,28l-4,12M24,28l-4,12M32,28l-4,12"
+        android:strokeWidth="4"
+        android:strokeColor="#01579B"
+        android:strokeLineCap="round" />
+</vector>

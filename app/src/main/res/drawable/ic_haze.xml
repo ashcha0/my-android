@@ -1,0 +1,27 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    
+    <!-- 霾气层 -->
+    <path
+        android:fillColor="#9E9E9E"
+        android:pathData="M4,20h40M4,24h36M8,28h32M4,32h40M6,36h36"
+        android:strokeWidth="3"
+        android:strokeColor="#9E9E9E"
+        android:strokeLineCap="round" />
+    
+    <!-- 更浓的霾气 -->
+    <path
+        android:fillColor="#757575"
+        android:pathData="M6,22h36M8,26h32M4,30h40M6,34h36"
+        android:strokeWidth="2"
+        android:strokeColor="#757575"
+        android:strokeLineCap="round" />
+    
+    <!-- 霾中的颗粒物 -->
+    <path
+        android:fillColor="#616161"
+        android:pathData="M10,20m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0M20,20m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0M30,20m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0M40,20m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0M15,24m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0M25,24m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0M35,24m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0M10,28m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0M20,28m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0M30,28m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0M15,32m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0M25,32m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0M35,32m-1,0a1,1 0,1 1,2 0a1,1 0,1 1,-2 0" />
+</vector>

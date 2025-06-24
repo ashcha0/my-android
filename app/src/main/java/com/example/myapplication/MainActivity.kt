@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -30,6 +31,10 @@ import com.example.myapplication.utils.LocationUtils
 import com.example.myapplication.utils.WeatherIconUtils
 
 class MainActivity : AppCompatActivity() {
+    
+    companion object {
+        private const val TAG = "MainActivity"
+    }
 
     private lateinit var tvCityName: TextView
     private lateinit var btnLocation: ImageButton
@@ -136,15 +141,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadWeatherData() {
+        Log.d(TAG, "开始加载天气数据，城市代码: $currentCityCode, 城市名称: $currentCityName")
         showLoading(true)
+        
         weatherService.getWeather(currentCityCode,
             onSuccess = { weatherResponse ->
+                Log.d(TAG, "天气数据获取成功: ${weatherResponse.cityInfo.city}")
                 runOnUiThread {
                     showLoading(false)
+                    // 更新城市名称显示
+                    tvCityName.text = weatherResponse.cityInfo.city
                     displayWeatherData(weatherResponse)
                 }
             },
             onError = { error ->
+                Log.e(TAG, "天气数据获取失败: $error")
                 runOnUiThread {
                     showLoading(false)
                     Toast.makeText(this@MainActivity, "获取天气数据失败: $error", Toast.LENGTH_SHORT).show()
@@ -156,12 +167,27 @@ class MainActivity : AppCompatActivity() {
     private fun displayWeatherData(weatherResponse: WeatherResponse) {
         val data = weatherResponse.data
         
-        // 显示当前天气
-        tvCurrentTemp.text = "${data.wendu}℃"
-        tvCurrentWeather.text = data.forecast[0].type
+        Log.d(TAG, "开始显示天气数据")
+        Log.d(TAG, "当前温度: ${data.wendu}℃")
+        Log.d(TAG, "湿度: ${data.shidu}")
+        Log.d(TAG, "PM2.5: ${data.pm25}")
+        Log.d(TAG, "空气质量: ${data.quality}")
+        Log.d(TAG, "健康提示: ${data.ganmao}")
+        Log.d(TAG, "预报数据条数: ${data.forecast.size}")
         
-        val iconResId = WeatherIconUtils.getWeatherIcon(data.forecast[0].type)
-        ivCurrentWeatherIcon.setImageResource(iconResId)
+        // 显示当前天气
+        if (data.forecast.isNotEmpty()) {
+            val todayForecast = data.forecast[0]
+            Log.d(TAG, "今日天气: ${todayForecast.type}, 温度范围: ${todayForecast.low} - ${todayForecast.high}")
+            
+            tvCurrentTemp.text = "${data.wendu}℃"
+            tvCurrentWeather.text = todayForecast.type
+            
+            val iconResId = WeatherIconUtils.getWeatherIcon(todayForecast.type)
+            ivCurrentWeatherIcon.setImageResource(iconResId)
+        } else {
+            Log.e(TAG, "预报数据为空，无法显示当前天气")
+        }
         
         // 显示空气质量等信息
         tvAirQuality.text = getAirQualityText(data.quality)
@@ -169,8 +195,14 @@ class MainActivity : AppCompatActivity() {
         tvPm25.text = data.pm25.toString()
         tvHealthTip.text = data.ganmao
         
-        // 更新预报列表
+        // 更新预报列表 - 处理多日数据
+        Log.d(TAG, "更新预报列表，共${data.forecast.size}天数据")
+        data.forecast.forEachIndexed { index, forecast ->
+            Log.d(TAG, "第${index + 1}天: ${forecast.date} ${forecast.type} ${forecast.low}-${forecast.high} 风力:${forecast.fl}")
+        }
+        
         forecastAdapter.updateData(data.forecast)
+        Log.d(TAG, "天气数据显示完成")
     }
 
     private fun getAirQualityText(quality: String): String {

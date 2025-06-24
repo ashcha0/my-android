@@ -46,6 +46,14 @@
                 android:contentDescription="选择城市"
                 android:src="@android:drawable/ic_menu_search" />
 
+            <ImageButton
+                android:id="@+id/btn_music_player"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="音乐播放器"
+                android:src="@android:drawable/ic_media_play" />
+
         </LinearLayout>
 
         <!-- 当前天气信息卡片 -->

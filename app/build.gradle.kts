@@ -59,6 +59,7 @@ dependencies {
     
     // 图片加载
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.karumi:dexter:6.2.3")
     
     // 权限请求
     implementation("androidx.activity:activity-ktx:1.8.2")

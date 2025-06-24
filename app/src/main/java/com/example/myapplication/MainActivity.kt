@@ -138,6 +138,12 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, CitySelectActivity::class.java)
             citySelectLauncher.launch(intent)
         }
+        
+        // 音乐播放按钮点击事件
+    findViewById<ImageButton>(R.id.btn_music_player).setOnClickListener {
+        val intent = Intent(this, MusicPlayerActivity::class.java)
+        startActivity(intent)
+    }
     }
 
     private fun loadWeatherData() {

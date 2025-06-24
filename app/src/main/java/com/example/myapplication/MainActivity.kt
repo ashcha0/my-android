@@ -232,19 +232,73 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getCurrentLocation() {
+        Log.d(TAG, "MainActivity开始获取当前位置")
         locationUtils.getCurrentLocation(
             onSuccess = { location ->
-                // 根据经纬度获取城市代码（简化实现）
+                Log.d(TAG, "MainActivity成功获取位置: 纬度=${location.latitude}, 经度=${location.longitude}")
+                
+                // 根据经纬度获取城市代码
                 val cityCode = locationUtils.getCityCodeByLocation(location.latitude, location.longitude)
+                Log.d(TAG, "获取到城市代码: $cityCode")
+                
+                // 更新当前城市信息
+                val oldCityCode = currentCityCode
+                val oldCityName = currentCityName
                 currentCityCode = cityCode
-                currentCityName = "当前位置"
+                
+                // 根据城市代码设置城市名称
+                currentCityName = getCityNameByCode(cityCode)
+                Log.d(TAG, "城市信息更新: $oldCityName($oldCityCode) -> $currentCityName($currentCityCode)")
+                
                 tvCityName.text = currentCityName
                 loadWeatherData()
             },
             onError = { error ->
+                Log.e(TAG, "MainActivity获取位置失败: $error")
                 Toast.makeText(this, "获取位置失败: $error", Toast.LENGTH_SHORT).show()
             }
         )
+    }
+    
+    /**
+     * 根据城市代码获取城市名称
+     */
+    private fun getCityNameByCode(cityCode: String): String {
+        val cityNameMap = mapOf(
+            "101010100" to "北京市",
+            "101020100" to "上海市",
+            "101030100" to "天津市",
+            "101040100" to "重庆市",
+            "101070101" to "沈阳市",
+            "101070201" to "大连市",
+            "101060101" to "长春市",
+            "101050101" to "哈尔滨市",
+            "101190101" to "南京市",
+            "101210101" to "杭州市",
+            "101120101" to "济南市",
+            "101120201" to "青岛市",
+            "101230101" to "福州市",
+            "101230201" to "厦门市",
+            "101240101" to "南昌市",
+            "101180101" to "郑州市",
+            "101200101" to "武汉市",
+            "101250101" to "长沙市",
+            "101280101" to "广州市",
+            "101280601" to "深圳市",
+            "101300101" to "南宁市",
+            "101310101" to "海口市",
+            "101270101" to "成都市",
+            "101260101" to "贵阳市",
+            "101290101" to "昆明市",
+            "101140101" to "拉萨市",
+            "101110101" to "西安市",
+            "101160101" to "兰州市",
+            "101150101" to "西宁市",
+            "101170101" to "银川市",
+            "101130101" to "乌鲁木齐市"
+        )
+        
+        return cityNameMap[cityCode] ?: "未知城市"
     }
 
     private fun openWeatherDetail(forecast: Forecast) {

@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.SeekBar
 import android.widget.TextView
@@ -18,6 +19,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import android.net.Uri
+import android.provider.MediaStore
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.adapter.MusicAdapter
@@ -37,6 +40,7 @@ class MusicPlayerActivity : AppCompatActivity() {
     private lateinit var btnPlayPause: ImageButton
     private lateinit var btnPrevious: ImageButton
     private lateinit var btnNext: ImageButton
+    private lateinit var btnSelectMusic: Button
     private lateinit var seekBar: SeekBar
     private lateinit var tvNowPlayingTitle: TextView
     private lateinit var tvNowPlayingArtist: TextView
@@ -61,6 +65,15 @@ class MusicPlayerActivity : AppCompatActivity() {
             scanMusicFiles()
         } else {
             Toast.makeText(this, "需要存储权限才能扫描音乐文件", Toast.LENGTH_SHORT).show()
+        }
+    }
+    
+    // 文件选择器
+    private val filePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            addMusicFromUri(it)
         }
     }
     
@@ -115,6 +128,7 @@ class MusicPlayerActivity : AppCompatActivity() {
         btnPlayPause = findViewById(R.id.btn_play_pause)
         btnPrevious = findViewById(R.id.btn_previous)
         btnNext = findViewById(R.id.btn_next)
+        btnSelectMusic = findViewById(R.id.btn_select_music)
         seekBar = findViewById(R.id.seek_bar)
         tvNowPlayingTitle = findViewById(R.id.tv_now_playing_title)
         tvNowPlayingArtist = findViewById(R.id.tv_now_playing_artist)
@@ -138,6 +152,10 @@ class MusicPlayerActivity : AppCompatActivity() {
         
         btnNext.setOnClickListener {
             musicService?.playNext()
+        }
+        
+        btnSelectMusic.setOnClickListener {
+            openFilePicker()
         }
         
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -259,6 +277,62 @@ class MusicPlayerActivity : AppCompatActivity() {
                 tvCurrentTime.text = "00:00"
                 tvTotalTime.text = "00:00"
             }
+        }
+    }
+    
+    private fun openFilePicker() {
+        filePickerLauncher.launch("audio/*")
+    }
+    
+    private fun addMusicFromUri(uri: Uri) {
+        try {
+            val cursor = contentResolver.query(
+                uri,
+                arrayOf(
+                    MediaStore.Audio.Media.DISPLAY_NAME,
+                    MediaStore.Audio.Media.ARTIST,
+                    MediaStore.Audio.Media.DURATION
+                ),
+                null,
+                null,
+                null
+            )
+            
+            cursor?.use {
+                if (it.moveToFirst()) {
+                    val titleIndex = it.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME)
+                    val artistIndex = it.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+                    val durationIndex = it.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
+                    
+                    val title = it.getString(titleIndex) ?: "未知歌曲"
+                    val artist = it.getString(artistIndex) ?: "未知艺术家"
+                    val duration = it.getLong(durationIndex)
+                    
+                    val music = Music(
+                        id = System.currentTimeMillis(),
+                        title = title.removeSuffix(".mp3").removeSuffix(".m4a").removeSuffix(".wav"),
+                        artist = artist,
+                        album = "未知专辑",
+                        path = uri.toString(),
+                        duration = duration
+                    )
+                    
+                    // 添加到音乐列表
+                    val newMusicList = musicList.toMutableList()
+                    newMusicList.add(music)
+                    musicList = newMusicList
+                    
+                    // 更新服务中的音乐列表
+                    musicService?.setMusicList(musicList)
+                    
+                    // 更新适配器
+                    musicAdapter.updateMusicList(musicList)
+                    
+                    Toast.makeText(this, "已添加: ${music.title}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "添加音乐失败: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
     

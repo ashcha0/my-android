@@ -25,4 +25,8 @@
     <color name="aqi_good">#4CAF50</color>
     <color name="aqi_moderate">#FF9800</color>
     <color name="aqi_unhealthy">#F44336</color>
+    
+    <!-- 日记功能颜色 -->
+    <color name="primary_color">@color/primary_blue</color>
+    <color name="background_color">#F5F5F5</color>
 </resources>

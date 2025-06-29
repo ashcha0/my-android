@@ -39,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var tvCityName: TextView
     private lateinit var btnLocation: ImageButton
     private lateinit var btnCitySelect: ImageButton
+    private lateinit var btnDiary: ImageButton
     private lateinit var tvCurrentTemp: TextView
     private lateinit var tvCurrentWeather: TextView
     private lateinit var ivCurrentWeatherIcon: ImageView
@@ -105,6 +106,7 @@ class MainActivity : AppCompatActivity() {
         tvCityName = findViewById(R.id.tv_city_name)
         btnLocation = findViewById(R.id.btn_location)
         btnCitySelect = findViewById(R.id.btn_city_select)
+        btnDiary = findViewById(R.id.btn_diary)
         tvCurrentTemp = findViewById(R.id.tv_current_temp)
         tvCurrentWeather = findViewById(R.id.tv_current_weather)
         ivCurrentWeatherIcon = findViewById(R.id.iv_current_weather_icon)
@@ -137,6 +139,11 @@ class MainActivity : AppCompatActivity() {
         btnCitySelect.setOnClickListener {
             val intent = Intent(this, CitySelectActivity::class.java)
             citySelectLauncher.launch(intent)
+        }
+        
+        btnDiary.setOnClickListener {
+            val intent = Intent(this, DiaryActivity::class.java)
+            startActivity(intent)
         }
         
         // 音乐播放按钮点击事件

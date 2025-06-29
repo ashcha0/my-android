@@ -54,6 +54,14 @@
                 android:contentDescription="音乐播放器"
                 android:src="@android:drawable/ic_media_play" />
 
+            <ImageButton
+                android:id="@+id/btn_diary"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="日记"
+                android:src="@drawable/ic_diary" />
+
         </LinearLayout>
 
         <!-- 当前天气信息卡片 -->

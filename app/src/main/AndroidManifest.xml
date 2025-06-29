@@ -52,6 +52,16 @@
             android:exported="false"
             android:theme="@style/Theme.MyApplication" />
             
+        <activity
+            android:name=".DiaryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication" />
+            
+        <activity
+            android:name=".DiaryEditActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MyApplication" />
+            
         <service
             android:name=".service.MusicService"
             android:enabled="true"

@@ -1,7 +1,10 @@
 package com.example.myapplication
 
+import android.Manifest
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -9,8 +12,12 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.myapplication.model.Diary
 import com.example.myapplication.storage.DiaryStorage
+import com.example.myapplication.utils.NotificationHelper
+import com.example.myapplication.utils.ReminderManager
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.concurrent.thread
@@ -23,6 +30,7 @@ class DiaryEditActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "DiaryEditActivity"
         const val EXTRA_DIARY = "extra_diary"
+        private const val REQUEST_NOTIFICATION_PERMISSION = 1001
     }
     
     private lateinit var etTitle: EditText
@@ -37,6 +45,8 @@ class DiaryEditActivity : AppCompatActivity() {
     private lateinit var progressSaving: ProgressBar
     
     private lateinit var diaryStorage: DiaryStorage
+    private lateinit var notificationHelper: NotificationHelper
+    private lateinit var reminderManager: ReminderManager
     
     private var editingDiary: Diary? = null
     private var selectedDate = Calendar.getInstance()
@@ -72,6 +82,8 @@ class DiaryEditActivity : AppCompatActivity() {
     
     private fun initServices() {
         diaryStorage = DiaryStorage(this)
+        notificationHelper = NotificationHelper(this)
+        reminderManager = ReminderManager(this)
     }
     
     private fun setupMoodSpinner() {
@@ -90,8 +102,17 @@ class DiaryEditActivity : AppCompatActivity() {
         }
         
         switchReminder.setOnCheckedChangeListener { _, isChecked ->
-            layoutReminder.visibility = if (isChecked) View.VISIBLE else View.GONE
-            if (!isChecked) {
+            if (isChecked) {
+                // 检查通知权限
+                if (checkNotificationPermission()) {
+                    layoutReminder.visibility = View.VISIBLE
+                } else {
+                    // 请求通知权限
+                    requestNotificationPermission()
+                    switchReminder.isChecked = false
+                }
+            } else {
+                layoutReminder.visibility = View.GONE
                 reminderTime = null
                 btnReminderTime.text = "设置提醒时间"
             }
@@ -195,6 +216,58 @@ class DiaryEditActivity : AppCompatActivity() {
         }
     }
     
+    /**
+     * 检查通知权限
+     */
+    private fun checkNotificationPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            notificationHelper.hasNotificationPermission()
+        }
+    }
+    
+    /**
+     * 请求通知权限
+     */
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                REQUEST_NOTIFICATION_PERMISSION
+            )
+        }
+    }
+    
+    /**
+     * 权限请求结果处理
+     */
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        
+        when (requestCode) {
+            REQUEST_NOTIFICATION_PERMISSION -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // 权限获取成功，重新打开提醒开关
+                    switchReminder.isChecked = true
+                    layoutReminder.visibility = View.VISIBLE
+                    Toast.makeText(this, "通知权限已获取", Toast.LENGTH_SHORT).show()
+                } else {
+                    // 权限被拒绝
+                    Toast.makeText(this, "需要通知权限才能设置提醒", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+    
     private fun saveDiary() {
         val title = etTitle.text.toString().trim()
         val content = etContent.text.toString().trim()
@@ -261,6 +334,9 @@ class DiaryEditActivity : AppCompatActivity() {
                     showSaving(false)
                     
                     if (success) {
+                        // 处理提醒设置
+                        handleReminderSetting(diary)
+                        
                         Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show()
                         setResult(RESULT_OK)
                         finish()
@@ -281,6 +357,38 @@ class DiaryEditActivity : AppCompatActivity() {
     
     private fun showSaving(show: Boolean) {
         progressSaving.visibility = if (show) View.VISIBLE else View.GONE
+    }
+    
+    /**
+     * 处理提醒设置
+     */
+    private fun handleReminderSetting(diary: Diary) {
+        Log.d(TAG, "[MyDiaryApp] 开始处理日记提醒 - ID: ${diary.id}, 标题: ${diary.title}")
+        Log.d(TAG, "[MyDiaryApp] 提醒状态: isReminder=${diary.isReminder}, reminderTime=${diary.reminderTime}")
+        
+        if (diary.isReminder && diary.reminderTime > 0) {
+            // 设置提醒
+            val reminderCalendar = Calendar.getInstance().apply {
+                timeInMillis = diary.reminderTime
+            }
+            val currentTime = System.currentTimeMillis()
+            
+            Log.d(TAG, "[MyDiaryApp] 提醒时间检查 - 设定时间: ${reminderCalendar.time}, 当前时间: ${java.util.Date(currentTime)}")
+            
+            // 检查提醒时间是否在未来
+            if (reminderCalendar.timeInMillis > currentTime) {
+                Log.i(TAG, "[MyDiaryApp] 提醒时间有效，开始设置提醒")
+                reminderManager.setReminder(diary)
+                Log.i(TAG, "[MyDiaryApp] 提醒设置完成: ${diary.title} at ${reminderCalendar.time}")
+            } else {
+                Log.w(TAG, "[MyDiaryApp] 提醒时间已过期，跳过设置: ${diary.title} - 过期时间差: ${currentTime - reminderCalendar.timeInMillis}ms")
+            }
+        } else {
+            // 取消提醒（如果之前设置过）
+            Log.d(TAG, "[MyDiaryApp] 日记未设置提醒或提醒时间无效，取消现有提醒")
+            reminderManager.cancelReminder(diary.id)
+            Log.d(TAG, "[MyDiaryApp] 提醒取消完成: ${diary.title}")
+        }
     }
     
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

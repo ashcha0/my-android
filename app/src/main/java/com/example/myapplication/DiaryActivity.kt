@@ -17,6 +17,7 @@ import com.example.myapplication.adapter.DiaryAdapter
 import com.example.myapplication.model.Diary
 import com.example.myapplication.model.ViewMode
 import com.example.myapplication.storage.DiaryStorage
+import com.example.myapplication.utils.ReminderManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.text.SimpleDateFormat
 import java.util.*
@@ -42,6 +43,7 @@ class DiaryActivity : AppCompatActivity() {
     
     private lateinit var diaryAdapter: DiaryAdapter
     private lateinit var diaryStorage: DiaryStorage
+    private lateinit var reminderManager: ReminderManager
     
     private val allDiaries = mutableListOf<Diary>()
     private val filteredDiaries = mutableListOf<Diary>()
@@ -60,6 +62,9 @@ class DiaryActivity : AppCompatActivity() {
         setupViewModeSpinner()
         setupClickListeners()
         loadDiaries()
+        
+        // 重新设置现有的提醒
+        restoreExistingReminders()
     }
     
     private fun initViews() {
@@ -76,6 +81,7 @@ class DiaryActivity : AppCompatActivity() {
     
     private fun initServices() {
         diaryStorage = DiaryStorage(this)
+        reminderManager = ReminderManager(this)
     }
     
     private fun setupRecyclerView() {
@@ -104,8 +110,8 @@ class DiaryActivity : AppCompatActivity() {
                 currentViewMode = when (position) {
                     0 -> ViewMode.ALL
                     1 -> ViewMode.TODAY
-                    2 -> ViewMode.WEEK
-                    3 -> ViewMode.MONTH
+                    2 -> ViewMode.THIS_WEEK
+            3 -> ViewMode.THIS_MONTH
                     else -> ViewMode.ALL
                 }
                 filterDiaries()
@@ -156,7 +162,7 @@ class DiaryActivity : AppCompatActivity() {
                 val todayStr = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(today.time)
                 result.filter { it.date == todayStr }
             }
-            ViewMode.WEEK -> {
+            ViewMode.THIS_WEEK -> {
                 val calendar = Calendar.getInstance()
                 // 获取本周一的日期
                 val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
@@ -170,7 +176,7 @@ class DiaryActivity : AppCompatActivity() {
                 
                 result.filter { it.date >= startDate && it.date <= endDate }
             }
-            ViewMode.MONTH -> {
+            ViewMode.THIS_MONTH -> {
                 val calendar = Calendar.getInstance()
                 calendar.set(Calendar.DAY_OF_MONTH, 1)
                 val startDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
@@ -198,21 +204,47 @@ class DiaryActivity : AppCompatActivity() {
     }
     
     private fun updateEmptyView() {
-        if (filteredDiaries.isEmpty()) {
-            tvEmptyView.visibility = View.VISIBLE
-            rvDiaries.visibility = View.GONE
-            
-            tvEmptyView.text = when {
-                searchKeyword.isNotEmpty() -> "没有找到相关日记"
-                selectedDate != null -> "该日期没有日记"
-                currentViewMode == ViewMode.TODAY -> "今天还没有写日记"
-                currentViewMode == ViewMode.WEEK -> "本周还没有写日记"
-                currentViewMode == ViewMode.MONTH -> "本月还没有写日记"
-                else -> "还没有日记，点击右下角按钮开始写日记吧！"
+        val isEmpty = filteredDiaries.isEmpty()
+        tvEmptyView.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        rvDiaries.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        
+        // 根据当前筛选条件设置空视图文本
+        tvEmptyView.text = when {
+            searchKeyword.isNotEmpty() -> "没有找到包含 \"$searchKeyword\" 的日记"
+            selectedDate != null -> "$selectedDate 没有日记记录"
+            currentViewMode == ViewMode.TODAY -> "今天还没有写日记"
+            currentViewMode == ViewMode.THIS_WEEK -> "本周还没有写日记"
+            currentViewMode == ViewMode.THIS_MONTH -> "本月还没有写日记"
+            else -> "还没有任何日记，点击右下角按钮开始写日记吧！"
+        }
+    }
+    
+    /**
+     * 重新设置现有日记的提醒
+     */
+    private fun restoreExistingReminders() {
+        thread {
+            try {
+                val diaries = diaryStorage.loadDiaryList()
+                val currentTime = System.currentTimeMillis()
+                
+                diaries.forEach { diary: Diary ->
+                    if (diary.isReminder && diary.reminderTime > currentTime) {
+                        // 只重新设置未来的提醒
+                        val reminderCalendar = Calendar.getInstance().apply {
+                            timeInMillis = diary.reminderTime
+                        }
+                        
+                        reminderManager.setReminder(diary)
+                        
+                        Log.d(TAG, "重新设置提醒: ${diary.title} at ${reminderCalendar.time}")
+                    }
+                }
+                
+                Log.d(TAG, "现有提醒重新设置完成")
+            } catch (e: Exception) {
+                Log.e(TAG, "重新设置提醒失败", e)
             }
-        } else {
-            tvEmptyView.visibility = View.GONE
-            rvDiaries.visibility = View.VISIBLE
         }
     }
     

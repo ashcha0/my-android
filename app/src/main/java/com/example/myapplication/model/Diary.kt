@@ -24,8 +24,8 @@ data class Diary(
  * 查看模式枚举
  */
 enum class ViewMode {
-    ALL,     // 全部
-    TODAY,   // 今天
-    WEEK,    // 本周
-    MONTH    // 本月
+    ALL,        // 全部
+    TODAY,      // 今天
+    THIS_WEEK,  // 本周
+    THIS_MONTH  // 本月
 }
